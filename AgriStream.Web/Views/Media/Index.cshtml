@@ -1,0 +1,38 @@
+@model List<MediaItemViewModel>
+@{
+    ViewData["Title"] = "Drone Images";
+}
+
+<h2>Drone images</h2>
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-2 align-items-end mb-4">
+    <div class="col-md-6">
+        <label class="form-label" for="file">Upload an image (JPG, PNG, TIFF, max 25 MB)</label>
+        <input type="file" id="file" name="file" class="form-control" accept=".jpg,.jpeg,.png,.tif,.tiff" required />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-success">Upload to Blob Storage</button>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No images uploaded yet.</div>
+}
+else
+{
+    <table class="table table-sm">
+        <thead><tr><th>Name</th><th>Size (KB)</th><th>Uploaded (UTC)</th><th>By</th></tr></thead>
+        <tbody>
+            @foreach (var m in Model)
+            {
+                <tr>
+                    <td><a asp-action="Open" asp-route-name="@m.Name" target="_blank">@m.Name</a></td>
+                    <td>@((m.SizeBytes ?? 0) / 1024)</td>
+                    <td>@m.UploadedUtc?.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@m.UploadedBy</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

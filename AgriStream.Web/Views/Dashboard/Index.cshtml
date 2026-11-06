@@ -1,0 +1,63 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Field Dashboard";
+}
+
+<h2>Field dashboard <small class="text-muted">@Model.FarmId</small></h2>
+
+<h4 class="mt-4">Devices</h4>
+<table class="table table-sm align-middle">
+    <thead>
+        <tr><th>Device</th><th>Field</th><th>Status</th><th>Last command</th><th>Updated (UTC)</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model.Devices)
+        {
+            <tr>
+                <td>@d.DeviceId</td>
+                <td>@d.FieldName</td>
+                <td>
+                    <span class="badge @(d.Status == "Irrigating" ? "bg-primary" : "bg-secondary")">@d.Status</span>
+                </td>
+                <td>@d.LastCommand</td>
+                <td>@d.LastUpdatedUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td class="text-end">
+                    <form asp-action="TriggerIrrigation" method="post" class="d-inline">
+                        <input type="hidden" name="deviceId" value="@d.DeviceId" />
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Trigger irrigation</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-4">Latest telemetry</h4>
+@if (!string.IsNullOrEmpty(Model.TelemetryError))
+{
+    <div class="alert alert-warning">@Model.TelemetryError</div>
+}
+else if (!Model.Telemetry.Any())
+{
+    <div class="alert alert-info">No telemetry yet. An Admin can write sample data from the Admin page.</div>
+}
+else
+{
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr><th>Time (UTC)</th><th>Device</th><th>Soil moisture %</th><th>Soil temp &deg;C</th><th>Battery %</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var t in Model.Telemetry)
+            {
+                <tr>
+                    <td>@t.ReadingTimeUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@t.DeviceId</td>
+                    <td>@t.SoilMoisture</td>
+                    <td>@t.SoilTemperature</td>
+                    <td>@t.BatteryPercent</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

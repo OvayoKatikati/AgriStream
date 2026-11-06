@@ -1,0 +1,51 @@
+@model AdminViewModel
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<h2>Administration</h2>
+
+<form asp-action="SeedTelemetry" method="post" class="mb-4">
+    <button type="submit" class="btn btn-outline-success">Write sample telemetry to Table Storage</button>
+</form>
+
+<h4>Users and roles (Azure SQL)</h4>
+<table class="table table-sm align-middle">
+    <thead><tr><th>Username</th><th>Role</th><th>Farm</th><th>Change role</th></tr></thead>
+    <tbody>
+        @foreach (var u in Model.Users)
+        {
+            <tr>
+                <td>@u.Username</td>
+                <td>@u.Role?.Name</td>
+                <td>@u.FarmId</td>
+                <td>
+                    <form asp-action="ChangeRole" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="userId" value="@u.Id" />
+                        <select name="roleId" class="form-select form-select-sm w-auto">
+                            @foreach (var r in Model.Roles)
+                            {
+                                <option value="@r.Id" selected="@(r.Id == u.RoleId)">@r.Name</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-4">Device registry (Azure SQL)</h4>
+<table class="table table-sm">
+    <thead><tr><th>Device</th><th>Farm</th><th>Field</th><th>Status</th><th>Last command</th><th>Updated (UTC)</th></tr></thead>
+    <tbody>
+        @foreach (var d in Model.Devices)
+        {
+            <tr>
+                <td>@d.DeviceId</td><td>@d.FarmId</td><td>@d.FieldName</td><td>@d.Status</td>
+                <td>@d.LastCommand</td><td>@d.LastUpdatedUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            </tr>
+        }
+    </tbody>
+</table>
